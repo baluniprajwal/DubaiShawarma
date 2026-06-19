@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRestaurant } from '../context/RestaurantContext';
 import { MapPin, Phone, ShieldAlert, X } from 'lucide-react';
 import { restaurantConfigs } from '../data';
+import { lockScroll, unlockScroll } from '../utils/scroll-lock';
 
 export default function RestaurantSelectorModal() {
   const {
@@ -18,15 +19,13 @@ export default function RestaurantSelectorModal() {
 
   useEffect(() => {
     if (showSelectionModal) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
+      lockScroll('restaurant-selector');
     } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      unlockScroll('restaurant-selector');
     }
+
     return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      unlockScroll('restaurant-selector');
     };
   }, [showSelectionModal]);
 

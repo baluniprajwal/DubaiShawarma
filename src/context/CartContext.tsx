@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { MenuItem } from '../types';
 
 interface CartItem {
@@ -25,7 +25,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = useCallback((item: MenuItem) => {
     setCart(prev => {
       const existing = prev.find(i => i.item.id === item.id);
       if (existing) {
@@ -33,9 +33,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { item, quantity: 1 }];
     });
-  };
+  }, []);
 
-  const removeFromCart = (id: string, removeAll: boolean = false) => {
+  const removeFromCart = useCallback((id: string, removeAll: boolean = false) => {
     setCart(prev => {
       if (removeAll) return prev.filter(i => i.item.id !== id);
       
@@ -46,9 +46,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return i;
       }).filter(i => i.quantity > 0);
     });
-  };
+  }, []);
 
-  const clearCart = () => setCart([]);
+  const clearCart = useCallback(() => setCart([]), []);
 
   const total = cart.reduce((sum, current) => {
      const price = parseFloat(current.item.price.replace('$', ''));

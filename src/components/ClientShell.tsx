@@ -9,14 +9,19 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import RestaurantSelectorModal from "@/components/RestaurantSelectorModal";
+import { useCart } from "@/context/CartContext";
 import { CartProvider } from "@/context/CartContext";
+import { useRestaurant } from "@/context/RestaurantContext";
 import { RestaurantProvider } from "@/context/RestaurantContext";
+import { isScrollLocked } from "@/utils/scroll-lock";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function LenisEffects() {
   const pathname = usePathname();
   const lenis = useLenis();
+  const { setIsCartOpen } = useCart();
+  const { setShowSelectionModal } = useRestaurant();
 
   useEffect(() => {
     if (!lenis) {
@@ -26,8 +31,7 @@ function LenisEffects() {
 
     const checkScrollLock = () => {
       const isLocked =
-        document.body.style.overflow === "hidden" ||
-        document.documentElement.style.overflow === "hidden" ||
+        isScrollLocked() ||
         document.body.classList.contains("overflow-hidden");
 
       if (isLocked) {
@@ -69,18 +73,53 @@ function LenisEffects() {
   }, [lenis]);
 
   useEffect(() => {
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true });
-    }
+    setIsCartOpen(false);
+    setShowSelectionModal(false);
 
-    window.scrollTo(0, 0);
+    ScrollTrigger.clearScrollMemory?.();
 
-    const timer = window.setTimeout(() => {
+    let cancelled = false;
+
+    const hardResetScrollState = () => {
+      if (cancelled) {
+        return;
+      }
+
+      lenis?.start();
+      lenis?.scrollTo(0, { immediate: true });
+      window.scrollTo(0, 0);
+      lenis?.resize?.();
       ScrollTrigger.refresh();
-    }, 60);
+    };
 
-    return () => window.clearTimeout(timer);
-  }, [pathname, lenis]);
+    const softRefreshScrollState = () => {
+      if (cancelled) {
+        return;
+      }
+
+      lenis?.start();
+      lenis?.resize?.();
+      ScrollTrigger.refresh();
+    };
+
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        hardResetScrollState();
+      });
+    });
+
+    const timers = [
+      window.setTimeout(softRefreshScrollState, 120),
+      window.setTimeout(softRefreshScrollState, 320),
+      window.setTimeout(softRefreshScrollState, 650),
+    ];
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [pathname, lenis, setIsCartOpen, setShowSelectionModal]);
 
   return null;
 }

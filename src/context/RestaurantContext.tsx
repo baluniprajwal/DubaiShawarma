@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useSyncExternalStore, useCallback } from 'react';
 import { RestaurantId, RestaurantConfig, MenuItem } from '../types';
 import { restaurantConfigs, getMenu } from '../data';
 import { useCart } from './CartContext';
@@ -55,7 +55,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     root.setAttribute('data-theme', restaurantId === 'grill' ? 'grill' : 'shawarma');
   }, [restaurantId]);
 
-  const setRestaurant = (id: RestaurantId) => {
+  const setRestaurant = useCallback((id: RestaurantId) => {
     if (storedRestaurantId && storedRestaurantId !== id) {
       clearCart();
     }
@@ -63,11 +63,11 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, id);
     window.dispatchEvent(new Event(STORAGE_EVENT));
     setIsModalOpen(false);
-  };
+  }, [clearCart, storedRestaurantId]);
 
-  const setShowSelectionModal = (show: boolean) => {
+  const setShowSelectionModal = useCallback((show: boolean) => {
     setIsModalOpen(show);
-  };
+  }, []);
 
   const config = restaurantConfigs[restaurantId] || restaurantConfigs.shawarma;
   const menu = getMenu(restaurantId);

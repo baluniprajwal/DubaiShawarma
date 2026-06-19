@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useRestaurant } from '../context/RestaurantContext';
+import { lockScroll, unlockScroll } from '../utils/scroll-lock';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,12 +52,13 @@ export default function Navbar() {
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      lockScroll('navbar-menu');
     } else {
-      document.body.style.overflow = '';
+      unlockScroll('navbar-menu');
     }
+
     return () => {
-      document.body.style.overflow = '';
+      unlockScroll('navbar-menu');
     };
   }, [isOpen]);
 

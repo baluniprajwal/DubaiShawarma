@@ -5,19 +5,20 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, Trash2 } from 'lucide-react';
-import { ColoredTitle } from './ColoredTitle';
+import { lockScroll, unlockScroll } from '../utils/scroll-lock';
 
 export default function CartDrawer() {
   const { cart, addToCart, removeFromCart, total, isCartOpen, setIsCartOpen, clearCart } = useCart();
 
   useEffect(() => {
     if (isCartOpen) {
-      document.body.style.overflow = 'hidden';
+      lockScroll('cart-drawer');
     } else {
-      document.body.style.overflow = 'auto';
+      unlockScroll('cart-drawer');
     }
+
     return () => {
-      document.body.style.overflow = 'auto';
+      unlockScroll('cart-drawer');
     };
   }, [isCartOpen]);
 
@@ -30,13 +31,13 @@ export default function CartDrawer() {
         onClick={() => setIsCartOpen(false)}
       />
       <div
-        className={`absolute top-0 right-0 h-full w-full max-w-md bg-brand-yellow border-l border-accent/20 shadow-2xl flex flex-col transform transition-transform duration-500 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full max-w-md bg-[#faf8f0] border-l border-accent/20 shadow-2xl flex flex-col transform transition-transform duration-500 ease-out ${
           isCartOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-8 border-b border-accent/15 flex justify-between items-center bg-white/20 backdrop-blur-sm">
-          <h2 className="font-display text-4xl uppercase tracking-tighter text-accent">
-            <ColoredTitle text="Your Order" />
+        <div className="p-8 border-b border-accent/15 flex justify-between items-center bg-[#faf8f0]">
+          <h2 className="font-display text-4xl uppercase tracking-tighter text-dark">
+            Your Order
           </h2>
           <button
             onClick={() => setIsCartOpen(false)}
@@ -62,7 +63,7 @@ export default function CartDrawer() {
             <div className="flex flex-col gap-8 relative z-10">
               {cart.map((c) => (
                 <div key={c.item.id} className="flex gap-6 group">
-                  <div className="w-24 aspect-square bg-white/30 border border-accent/15 overflow-hidden flex-shrink-0">
+                  <div className="w-24 aspect-square bg-[#faf8f0] border border-accent/15 overflow-hidden flex-shrink-0">
                     <Image
                       src={c.item.image}
                       alt={c.item.title}
@@ -74,19 +75,19 @@ export default function CartDrawer() {
                   </div>
                   <div className="flex flex-col flex-1 justify-between py-1">
                     <div className="flex justify-between items-start gap-4">
-                      <h3 className="font-display text-sm uppercase text-accent font-semibold leading-tight tracking-wider">{c.item.title}</h3>
-                      <span className="font-display text-accent text-lg">${parseFloat(c.item.price.replace('$', '')).toFixed(2)}</span>
+                      <h3 className="font-display text-sm uppercase text-dark font-semibold leading-tight tracking-wider">{c.item.title}</h3>
+                      <span className="font-display text-dark text-lg">${parseFloat(c.item.price.replace('$', '')).toFixed(2)}</span>
                     </div>
 
                     <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center gap-2 bg-white/25 border border-accent/15 px-2 py-1">
+                      <div className="flex items-center gap-2 bg-[#faf8f0] border border-accent/15 px-2 py-1">
                         <button
                           onClick={() => removeFromCart(c.item.id)}
                           className="p-1 text-accent/60 hover:text-accent transition-colors"
                         >
                           <Minus size={14} />
                         </button>
-                        <span className="font-sans text-xs w-6 text-center text-accent font-semibold">{c.quantity}</span>
+                        <span className="font-sans text-xs w-6 text-center text-dark font-semibold">{c.quantity}</span>
                         <button
                           onClick={() => addToCart(c.item)}
                           className="p-1 text-accent/60 hover:text-accent transition-colors"
@@ -110,7 +111,7 @@ export default function CartDrawer() {
         </div>
 
         {cart.length > 0 && (
-          <div className="p-8 border-t border-accent/15 bg-white/20 backdrop-blur-sm">
+          <div className="p-8 border-t border-accent/15 bg-[#faf8f0]">
             <div className="flex justify-between items-center mb-6">
               <button
                 onClick={() => clearCart()}
@@ -120,8 +121,8 @@ export default function CartDrawer() {
               </button>
             </div>
             <div className="flex justify-between items-end mb-8">
-              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-accent/70 font-bold">Subtotal</span>
-              <span className="font-display text-4xl text-accent leading-none">${total.toFixed(2)}</span>
+              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-dark/70 font-bold">Subtotal</span>
+              <span className="font-display text-4xl text-dark leading-none">${total.toFixed(2)}</span>
             </div>
 
             <Link
@@ -129,7 +130,7 @@ export default function CartDrawer() {
               onClick={() => {
                 setIsCartOpen(false);
               }}
-              className="relative overflow-hidden block group border border-accent px-8 py-5 font-sans tracking-[0.2em] uppercase text-xs w-full text-center bg-accent text-white font-bold hover:bg-white hover:text-accent hover:border-accent transition-colors"
+              className="relative overflow-hidden block group border border-accent px-8 py-5 font-sans tracking-[0.2em] uppercase text-xs w-full text-center bg-accent text-white font-bold hover:bg-[#faf8f0] hover:text-accent hover:border-accent transition-colors"
             >
               Checkout Order
             </Link>
